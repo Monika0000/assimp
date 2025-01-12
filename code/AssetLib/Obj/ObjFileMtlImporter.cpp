@@ -3,7 +3,7 @@
 Open Asset Import Library (assimp)
 ---------------------------------------------------------------------------
 
-Copyright (c) 2006-2020, assimp team
+Copyright (c) 2006-2024, assimp team
 
 All rights reserved.
 
@@ -105,10 +105,6 @@ ObjFileMtlImporter::ObjFileMtlImporter(std::vector<char> &buffer,
     }
     load();
 }
-
-// -------------------------------------------------------------------
-//  Destructor
-ObjFileMtlImporter::~ObjFileMtlImporter() = default;
 
 // -------------------------------------------------------------------
 //  Loads the material description
@@ -252,9 +248,9 @@ void ObjFileMtlImporter::load() {
             case 'a': // Anisotropy
             {
                 ++m_DataIt;
-                getFloatValue(m_pModel->mCurrentMaterial->anisotropy);
                 if (m_pModel->mCurrentMaterial != nullptr)
-                    m_DataIt = skipLine<DataArrayIt>(m_DataIt, m_DataItEnd, m_uiLine);
+                    getFloatValue(m_pModel->mCurrentMaterial->anisotropy);
+                m_DataIt = skipLine<DataArrayIt>(m_DataIt, m_DataItEnd, m_uiLine);
             } break;
 
             default: {
@@ -343,7 +339,7 @@ void ObjFileMtlImporter::createMaterial() {
         }
     }
 
-    name = trim_whitespaces(name);
+    name = ai_trim(name);
 
     std::map<std::string, ObjFile::Material *>::iterator it = m_pModel->mMaterialMap.find(name);
     if (m_pModel->mMaterialMap.end() == it) {
@@ -371,6 +367,7 @@ void ObjFileMtlImporter::getTexture() {
     if (m_pModel->mCurrentMaterial == nullptr) {
         m_pModel->mCurrentMaterial = new ObjFile::Material();
         m_pModel->mCurrentMaterial->MaterialName.Set("Empty_Material");
+        m_pModel->mMaterialMap["Empty_Material"] = m_pModel->mCurrentMaterial;
     }
 
     const char *pPtr(&(*m_DataIt));
